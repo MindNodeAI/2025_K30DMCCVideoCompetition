@@ -28,7 +28,7 @@
                 <i class="fa-solid fa-user-graduate text-4xl text-emerald-600"></i>
             </div>
             <h1 class="text-3xl font-black text-slate-800 mb-3">參賽團隊登入</h1>
-            <p class="text-slate-500 font-medium text-sm mb-8 leading-relaxed">請登入您的 Google 帳號以填寫報名表。若您已經報名過，系統將自動載入您的資料供您修改。</p>
+            <p class="text-slate-500 font-medium text-sm mb-8 leading-relaxed">請登入您的 Google 帳號以建立報名表。<br>若您已經報名過，系統將自動載入資料供您修改或補件。</p>
             
             <button id="googleSignInBtn" class="w-full flex items-center justify-center space-x-3 bg-white border-2 border-slate-200 hover:bg-slate-50 hover:border-emerald-300 text-slate-700 font-bold py-4 px-4 rounded-xl transition shadow-sm mb-4">
                 <i class="fa-brands fa-google text-red-500 text-xl"></i><span>使用 Google 帳號登入</span>
@@ -54,6 +54,21 @@
         </header>
 
         <main class="flex-1 w-full max-w-5xl mx-auto p-4 md:p-8">
+            
+            <!-- 缺件提醒 Banner (登入後若有缺件會顯示) -->
+            <div id="missingItemsBanner" class="hidden mb-6 bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-2xl shadow-sm">
+                <div class="flex items-start">
+                    <i class="fa-solid fa-bell text-amber-500 text-2xl mr-4 mt-1"></i>
+                    <div>
+                        <h3 class="text-amber-800 font-black text-lg mb-2">溫馨提醒：您的報名資料尚有缺件</h3>
+                        <p class="text-sm text-amber-700 mb-3 font-medium">您可以隨時暫存目前進度，但請務必於報名截止前補齊以下資料，以免影響評選資格：</p>
+                        <ul id="missingItemsList" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-amber-800 font-bold">
+                            <!-- JS 動態插入缺件清單 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative">
                 <!-- 進度條 -->
                 <div class="w-full bg-slate-100 h-2 absolute top-0 left-0">
@@ -75,7 +90,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block font-bold text-slate-700 mb-2">參賽組別 <span class="text-red-500">*</span></label>
-                                <select id="groupCategory" required class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-white">
+                                <select id="groupCategory" required class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition bg-white">
                                     <option value="">請選擇組別</option>
                                     <option value="大專校院組">大專校院組</option>
                                     <option value="高中職組">高中職組</option>
@@ -109,12 +124,12 @@
                             </button>
                         </div>
                         
-                        <!-- 學生證上傳 -->
+                        <!-- 學生證上傳 (已解除必填，支援暫存) -->
                         <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                            <label class="block font-bold text-slate-800 mb-2">上傳全體成員學生證/在學證明 <span id="reqStudentId" class="text-red-500">*</span></label>
-                            <p class="text-xs text-slate-500 mb-4">限上傳一份 PDF 或 ZIP 壓縮檔 (50MB內)。須能清楚辨識姓名、學校及在學身分。</p>
-                            <input type="file" id="studentIdsFile" accept=".pdf, .zip, .jpg, .png" required class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-slate-800 file:text-white hover:file:bg-slate-700 border border-slate-300 rounded-xl p-2 bg-white transition cursor-pointer">
-                            <div id="existingStudentIdHint" class="hidden mt-3 text-sm text-emerald-600 font-bold bg-emerald-50 p-3 rounded-lg border border-emerald-100"><i class="fa-solid fa-circle-check mr-2"></i>您已成功上傳過證明文件。若不需更改，此欄位請留空。</div>
+                            <label class="block font-bold text-slate-800 mb-2">上傳全體成員學生證/在學證明</label>
+                            <p class="text-xs text-slate-500 mb-4">限上傳一份 PDF 或 ZIP 壓縮檔 (50MB內)。(若尚未準備好可先留空，截止前補齊即可)</p>
+                            <input type="file" id="studentIdsFile" accept=".pdf, .zip, .jpg, .png" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-slate-800 file:text-white hover:file:bg-slate-700 border border-slate-300 rounded-xl p-2 bg-white transition cursor-pointer">
+                            <div id="existingStudentIdHint" class="hidden mt-3 text-sm text-emerald-600 font-bold bg-emerald-50 p-3 rounded-lg border border-emerald-100"><i class="fa-solid fa-circle-check mr-2"></i>您已成功上傳過證明文件。若不需更換，此欄位請留空。</div>
                         </div>
 
                         <div class="flex justify-end pt-4">
@@ -131,23 +146,27 @@
                             </div>
                         </div>
                         
+                        <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 text-sm text-amber-800 font-bold mb-4">
+                            <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>此頁面所有欄位皆可先留空暫存，報名截止前補齊即可。
+                        </div>
+
                         <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
-                            <label class="block font-bold text-slate-700 mb-2">作品內容簡介 (300字內) <span class="text-red-500">*</span></label>
-                            <textarea id="projectDesc" required maxlength="300" rows="4" class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition resize-none"></textarea>
+                            <label class="block font-bold text-slate-700 mb-2">作品內容簡介 (300字內)</label>
+                            <textarea id="projectDesc" maxlength="300" rows="4" class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition resize-none"></textarea>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
-                                <label class="block font-bold text-slate-700 mb-2">目標受眾 (TA) <span class="text-red-500">*</span></label>
-                                <input type="text" id="targetAudience" required class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition">
+                                <label class="block font-bold text-slate-700 mb-2">目標受眾 (TA)</label>
+                                <input type="text" id="targetAudience" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition">
                             </div>
                             <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
-                                <label class="block font-bold text-slate-700 mb-2">核心訊息 <span class="text-red-500">*</span></label>
-                                <input type="text" id="coreMessage" required class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition">
+                                <label class="block font-bold text-slate-700 mb-2">核心訊息</label>
+                                <input type="text" id="coreMessage" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition">
                             </div>
                             <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
-                                <label class="block font-bold text-slate-700 mb-2">行動呼籲 (CTA) <span class="text-red-500">*</span></label>
-                                <input type="text" id="cta" required class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition">
+                                <label class="block font-bold text-slate-700 mb-2">行動呼籲 (CTA)</label>
+                                <input type="text" id="cta" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition">
                             </div>
                         </div>
 
@@ -157,7 +176,7 @@
                             <p class="text-sm text-purple-700 mb-6 font-medium">依照簡章規定，須使用<strong class="mx-1">至少 2 類</strong>技術，並提供<strong class="mx-1">至少 3 組</strong>實際使用紀錄。</p>
                             
                             <div class="mb-6 bg-white p-5 rounded-xl border border-purple-200 shadow-sm">
-                                <label class="block font-bold text-slate-800 mb-3">請勾選您作品中使用的 AI 技術類型 (至少勾選 2 項) <span class="text-red-500">*</span></label>
+                                <label class="block font-bold text-slate-800 mb-3">請勾選您作品中使用的 AI 技術類型 (至少勾選 2 項)</label>
                                 <div class="flex flex-wrap gap-4 text-sm font-bold text-slate-600" id="aiTypeCheckboxes">
                                     <label class="flex items-center cursor-pointer hover:text-purple-600"><input type="checkbox" value="腳本/文字生成" class="mr-2 w-4 h-4 text-purple-600 ai-type-cb"> 腳本/文字生成</label>
                                     <label class="flex items-center cursor-pointer hover:text-purple-600"><input type="checkbox" value="圖像生成" class="mr-2 w-4 h-4 text-purple-600 ai-type-cb"> 圖像生成</label>
@@ -177,7 +196,7 @@
 
                         <div class="flex justify-between pt-4 border-t border-slate-100">
                             <button type="button" onclick="nextStep(1)" class="bg-slate-100 text-slate-600 font-bold py-3.5 px-8 rounded-xl hover:bg-slate-200 transition flex items-center"><i class="fa-solid fa-arrow-left mr-2"></i> 上一步</button>
-                            <button type="button" onclick="validateStep2AndNext()" class="bg-slate-800 text-white font-bold py-3.5 px-10 rounded-xl hover:bg-slate-700 transition shadow-lg flex items-center">下一步，上傳作品 <i class="fa-solid fa-arrow-right ml-3"></i></button>
+                            <button type="button" onclick="nextStep(3)" class="bg-slate-800 text-white font-bold py-3.5 px-10 rounded-xl hover:bg-slate-700 transition shadow-lg flex items-center">下一步，上傳作品 <i class="fa-solid fa-arrow-right ml-3"></i></button>
                         </div>
                     </div>
 
@@ -190,38 +209,39 @@
                             </div>
                         </div>
                         
-                        <!-- 繳交區 -->
+                        <!-- 繳交區 (已解除必填，支援暫存) -->
                         <div class="bg-amber-50/50 p-6 md:p-8 rounded-2xl border border-amber-100">
-                            <h3 class="font-bold text-amber-900 mb-6 flex items-center text-lg"><i class="fa-brands fa-youtube mr-2"></i>作品繳件區</h3>
+                            <h3 class="font-bold text-amber-900 mb-2 flex items-center text-lg"><i class="fa-brands fa-youtube mr-2"></i>作品繳件區</h3>
+                            <p class="text-sm text-amber-700 mb-6 font-medium">若影片或簡報尚未完成，您可先填妥基本資料進行暫存，日後再登入補齊。</p>
                             
                             <div class="space-y-6">
                                 <div class="flex flex-col md:flex-row gap-6">
                                     <div class="w-full md:w-1/3">
-                                        <label class="block font-bold text-slate-700 mb-2">影片長度 (秒) <span class="text-red-500">*</span></label>
-                                        <input type="number" id="videoLength" required min="30" max="60" class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition bg-white" placeholder="30 - 60 秒">
+                                        <label class="block font-bold text-slate-700 mb-2">影片長度 (秒)</label>
+                                        <input type="number" id="videoLength" min="30" max="60" class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition bg-white" placeholder="30 - 60 秒">
                                     </div>
                                     <div class="w-full md:w-2/3">
-                                        <label class="block font-bold text-slate-700 mb-2">YouTube 「不公開」連結 <span class="text-red-500">*</span></label>
-                                        <input type="url" id="youtubeLink" required class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition bg-white" placeholder="https://youtu.be/...">
+                                        <label class="block font-bold text-slate-700 mb-2">YouTube 「不公開」連結</label>
+                                        <input type="url" id="youtubeLink" class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition bg-white" placeholder="https://youtu.be/...">
                                     </div>
                                 </div>
                                 
                                 <div class="bg-white p-5 rounded-xl border border-amber-200">
-                                    <label class="block font-bold text-slate-800 mb-2">1. 上傳 MP4 影音原始檔 (1GB以內) <span id="reqVideo" class="text-red-500">*</span></label>
-                                    <input type="file" id="mp4File" accept="video/mp4" required class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 border border-slate-300 rounded-xl p-2 transition cursor-pointer">
+                                    <label class="block font-bold text-slate-800 mb-2">1. 上傳 MP4 影音原始檔 (1GB以內)</label>
+                                    <input type="file" id="mp4File" accept="video/mp4" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 border border-slate-300 rounded-xl p-2 transition cursor-pointer">
                                     <div id="existingVideoHint" class="hidden mt-3 text-sm text-blue-600 font-bold bg-blue-50 p-3 rounded-lg border border-blue-100"><i class="fa-solid fa-circle-check mr-2"></i>已上傳過影片。若不需更換影片，此欄位請留空。</div>
                                 </div>
 
                                 <div class="bg-white p-5 rounded-xl border border-amber-200">
-                                    <label class="block font-bold text-slate-800 mb-2">2. 上傳 15 頁作品介紹簡報 (限 PDF 檔) <span id="reqPresentation" class="text-red-500">*</span></label>
+                                    <label class="block font-bold text-slate-800 mb-2">2. 上傳 15 頁作品介紹簡報 (限 PDF 檔)</label>
                                     <p class="text-xs text-slate-500 mb-3">簡報內容須包括主題、行銷目的、受眾設定、創意及影音製作的完整性、行銷策略的適配性，以及執行成效與策略。</p>
-                                    <input type="file" id="presentationFile" accept="application/pdf" required class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-100 file:text-blue-800 hover:file:bg-blue-200 border border-slate-300 rounded-xl p-2 transition cursor-pointer">
+                                    <input type="file" id="presentationFile" accept="application/pdf" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-100 file:text-blue-800 hover:file:bg-blue-200 border border-slate-300 rounded-xl p-2 transition cursor-pointer">
                                     <div id="existingPresentationHint" class="hidden mt-3 text-sm text-blue-600 font-bold bg-blue-50 p-3 rounded-lg border border-blue-100"><i class="fa-solid fa-circle-check mr-2"></i>已上傳過簡報。若不需更換簡報，此欄位請留空。</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 授權 -->
+                        <!-- 授權 (必須勾選才能暫存) -->
                         <div class="bg-slate-50 p-6 md:p-8 rounded-2xl border border-slate-200">
                             <h3 class="font-bold text-slate-800 mb-4 text-lg">授權及同意事項</h3>
                             <div class="h-40 overflow-y-scroll bg-white p-4 border border-slate-300 rounded-xl text-sm text-slate-600 mb-5 leading-loose">
@@ -245,13 +265,13 @@
                         <!-- 最終確認 -->
                         <div class="bg-gradient-to-r from-emerald-600 to-emerald-500 text-white p-6 rounded-2xl shadow-lg flex items-center">
                             <input type="checkbox" id="finalCheck" required class="mr-4 w-6 h-6 rounded border-none cursor-pointer">
-                            <span class="font-bold text-lg">我已確認所有填寫的資料與上傳的檔案均正確無誤。</span>
+                            <span class="font-bold text-lg">我已確認所有填寫的資料與上傳的檔案。</span>
                         </div>
 
                         <div class="flex justify-between pt-6 border-t border-slate-100">
                             <button type="button" onclick="nextStep(2)" class="bg-slate-100 text-slate-600 font-bold py-3.5 px-8 rounded-xl hover:bg-slate-200 transition flex items-center"><i class="fa-solid fa-arrow-left mr-2"></i> 上一步</button>
                             <button type="submit" id="submitBtn" class="bg-emerald-500 text-white font-black text-lg py-4 px-12 rounded-xl hover:bg-emerald-600 hover:scale-105 transition-all duration-300 shadow-xl shadow-emerald-500/30 flex items-center">
-                                <i class="fa-solid fa-paper-plane mr-3" id="submitIcon"></i> <span id="submitText">確認送出報名</span>
+                                <i class="fa-solid fa-paper-plane mr-3" id="submitIcon"></i> <span id="submitText">儲存 / 送出報名</span>
                             </button>
                         </div>
                     </div>
@@ -312,13 +332,12 @@
         let existingDocId = null; 
         let existingFiles = {};   
 
-        // 登入
+        // 登入與登出
         document.getElementById('googleSignInBtn').addEventListener('click', async () => {
             try { await signInWithPopup(auth, provider); } 
             catch (error) { window.showMessage('error', '登入失敗', error.message); }
         });
 
-        // 登出
         document.getElementById('logoutBtn').addEventListener('click', () => {
             signOut(auth);
             window.location.reload();
@@ -341,7 +360,7 @@
             }
         });
 
-        // 檢查是否已報名過
+        // 檢查是否已報名過，並執行缺件檢查
         async function checkExistingRegistration(email) {
             const overlay = document.getElementById('loadingOverlay');
             document.getElementById('loadingTitle').textContent = "正在讀取您的資料...";
@@ -357,7 +376,9 @@
                 if (!querySnapshot.empty) {
                     const docSnap = querySnapshot.docs[0];
                     existingDocId = docSnap.id;
-                    populateForm(docSnap.data());
+                    const data = docSnap.data();
+                    populateForm(data);
+                    checkMissingItems(data, data.files || {});
                 } else {
                     initEmptyForm();
                 }
@@ -365,6 +386,31 @@
                 console.error("讀取失敗:", error);
             }
             overlay.style.display = 'none';
+        }
+
+        // 缺件盤點邏輯
+        function checkMissingItems(data, files) {
+            let missing = [];
+            if (!files.studentIdUrl) missing.push("全體隊員學生證 (步驟一)");
+            if (!data.projectDetails?.description || !data.projectDetails?.targetAudience || !data.projectDetails?.coreMessage || !data.projectDetails?.cta) missing.push("企劃內容簡介與行銷設定 (步驟二)");
+            if ((data.aiData?.typesUsed?.length || 0) < 2) missing.push("AI 技術勾選不足 2 類 (步驟二)");
+            if ((data.aiData?.records?.length || 0) < 3) missing.push("AI 使用紀錄未填滿 3 組 (步驟二)");
+            if (!data.videoDelivery?.length || !data.videoDelivery?.youtubeLink) missing.push("YouTube 連結與影片長度 (步驟三)");
+            if (!files.videoUrl) missing.push("MP4 影音原始檔 (步驟三)");
+            if (!files.presentationUrl) missing.push("15 頁作品介紹簡報 PDF (步驟三)");
+
+            const banner = document.getElementById('missingItemsBanner');
+            const list = document.getElementById('missingItemsList');
+            const submitText = document.getElementById('submitText');
+            
+            if (missing.length > 0) {
+                banner.classList.remove('hidden');
+                list.innerHTML = missing.map(item => `<li class="flex items-center"><i class="fa-solid fa-triangle-exclamation mr-2"></i>${item}</li>`).join('');
+                submitText.textContent = "暫存並更新資料";
+            } else {
+                banner.classList.add('hidden');
+                submitText.textContent = "資料已齊全，更新送出";
+            }
         }
 
         // 初始化空表單
@@ -380,8 +426,6 @@
         // 回填資料 (修改模式)
         function populateForm(data) {
             document.getElementById('statusBadge').classList.remove('hidden');
-            document.getElementById('submitText').textContent = "更新報名資料";
-            document.getElementById('submitIcon').className = "fa-solid fa-floppy-disk mr-2";
             
             document.getElementById('groupCategory').value = data.groupCategory || '';
             document.getElementById('projectName').value = data.projectName || '';
@@ -402,7 +446,8 @@
 
             document.getElementById('aiRecordsContainer').innerHTML = '';
             const records = data.aiData?.records || [];
-            records.forEach((r, i) => { addAiRecordBlock(i+1, i >= 3, r.tool, r.type, r.prompt, r.usage); });
+            records.forEach((r, i) => { addAiRecordBlock(i+1, true, r.tool, r.type, r.prompt, r.usage); });
+            // 補齊至少3個空白區塊讓畫面整齊
             for(let i=records.length+1; i<=3; i++) addAiRecordBlock(i, false);
 
             document.getElementById('videoLength').value = data.videoDelivery?.length || '';
@@ -414,22 +459,10 @@
 
             existingFiles = data.files || {};
             
-            // 處理既有檔案的必填狀態與提示
-            if(existingFiles.studentIdUrl) {
-                document.getElementById('studentIdsFile').removeAttribute('required');
-                document.getElementById('reqStudentId').classList.add('hidden');
-                document.getElementById('existingStudentIdHint').classList.remove('hidden');
-            }
-            if(existingFiles.videoUrl) {
-                document.getElementById('mp4File').removeAttribute('required');
-                document.getElementById('reqVideo').classList.add('hidden');
-                document.getElementById('existingVideoHint').classList.remove('hidden');
-            }
-            if(existingFiles.presentationUrl) {
-                document.getElementById('presentationFile').removeAttribute('required');
-                document.getElementById('reqPresentation').classList.add('hidden');
-                document.getElementById('existingPresentationHint').classList.remove('hidden');
-            }
+            // 處理既有檔案提示 (已取消 required 限制)
+            if(existingFiles.studentIdUrl) { document.getElementById('existingStudentIdHint').classList.remove('hidden'); }
+            if(existingFiles.videoUrl) { document.getElementById('existingVideoHint').classList.remove('hidden'); }
+            if(existingFiles.presentationUrl) { document.getElementById('existingPresentationHint').classList.remove('hidden'); }
         }
 
         // 動態新增欄位邏輯
@@ -473,13 +506,13 @@
             const div = document.createElement('div');
             div.className = "bg-white p-5 rounded-xl border border-purple-100 relative shadow-sm";
             div.innerHTML = `
-                <div class="font-black text-purple-700 mb-3 bg-purple-50 inline-block px-3 py-1 rounded-lg text-sm">紀錄 ${index} ${removable ? '' : '<span class="text-red-500 ml-1">* 必填</span>'}</div>
+                <div class="font-black text-purple-700 mb-3 bg-purple-50 inline-block px-3 py-1 rounded-lg text-sm">紀錄 ${index}</div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                    <input type="text" class="ai-tool p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="AI 工具名稱 (例: ChatGPT)" value="${tool}" ${!removable ? 'required' : ''}>
-                    <input type="text" class="ai-record-type p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="應用技術 (例: 腳本生成)" value="${type}" ${!removable ? 'required' : ''}>
+                    <input type="text" class="ai-tool p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="AI 工具名稱 (例: ChatGPT)" value="${tool}">
+                    <input type="text" class="ai-record-type p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="應用技術 (例: 腳本生成)" value="${type}">
                 </div>
-                <textarea class="ai-prompt w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 mb-3 text-sm resize-none" rows="2" placeholder="使用的提示詞 (Prompt)" ${!removable ? 'required' : ''}>${prompt}</textarea>
-                <textarea class="ai-usage w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm resize-none" rows="2" placeholder="產出內容與實際運用於作品的方式" ${!removable ? 'required' : ''}>${usage}</textarea>
+                <textarea class="ai-prompt w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 mb-3 text-sm resize-none" rows="2" placeholder="使用的提示詞 (Prompt)">${prompt}</textarea>
+                <textarea class="ai-usage w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm resize-none" rows="2" placeholder="產出內容與實際運用於作品的方式">${usage}</textarea>
                 ${removable ? `<button type="button" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition" onclick="this.parentElement.remove()"><i class="fa-solid fa-circle-xmark text-lg"></i></button>` : ''}
             `;
             document.getElementById('aiRecordsContainer').appendChild(div);
@@ -490,26 +523,13 @@
             addAiRecordBlock(count + 1, true);
         });
 
-        // 步驟切換與驗證邏輯
+        // 步驟切換 (直接切換，無阻擋邏輯)
         window.nextStep = function(step) {
             document.querySelectorAll('.form-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`step${step}`).classList.add('active');
             document.getElementById('progressBar').style.width = step === 1 ? '33.3%' : step === 2 ? '66.6%' : '100%';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
-
-        window.validateStep2AndNext = function() {
-            const valid = document.getElementById('step2').querySelectorAll(':invalid').length === 0;
-            if(!valid) { 
-                window.showMessage('error', '資料未填妥', '請確認本頁所有必填欄位 (包含 3 組必填的 AI 紀錄) 皆已填寫完成。'); 
-                return; 
-            }
-            if (document.querySelectorAll('.ai-type-cb:checked').length < 2) {
-                window.showMessage('error', '資格不符', '依據簡章規定，必須使用至少「2類」不同的生成式 AI 技術，請確實勾選。');
-                return;
-            }
-            window.nextStep(3);
-        }
 
         window.showMessage = function(type, title, text) {
             const modal = document.getElementById('messageModal');
@@ -528,7 +548,7 @@
             setTimeout(() => document.getElementById('messageModal').classList.add('hidden'), 300);
         };
 
-        // 表單送出處理
+        // 表單送出處理 (支援平行上傳與部分空資料)
         document.getElementById('registrationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -539,7 +559,7 @@
             }
 
             const overlay = document.getElementById('loadingOverlay');
-            document.getElementById('loadingTitle').textContent = existingDocId ? "正在更新報名資料" : "正在上傳報名資料";
+            document.getElementById('loadingTitle').textContent = "正在處理您的資料";
             document.getElementById('loadingText').innerHTML = '這可能需要幾分鐘的時間，請勿關閉視窗...';
             document.getElementById('uploadProgressBar').parentElement.classList.remove('hidden');
             document.getElementById('progressPercent').parentElement.classList.remove('hidden');
@@ -587,26 +607,20 @@
                     });
                 };
 
-                // 同時啟動所有檔案上傳
-                if (studentIdFile) {
-                    uploadTasks.push(uploadFile(studentIdFile, `registrations/student_ids/${timestamp}_${studentIdFile.name}`, 'studentId').then(url => finalStudentIdUrl = url));
-                }
-                if (videoFile) {
-                    uploadTasks.push(uploadFile(videoFile, `registrations/videos/${timestamp}_${videoFile.name}`, 'video').then(url => finalVideoUrl = url));
-                }
-                if (presentationFile) {
-                    uploadTasks.push(uploadFile(presentationFile, `registrations/presentations/${timestamp}_${presentationFile.name}`, 'presentation').then(url => finalPresentationUrl = url));
-                }
+                // 啟動所有選擇的檔案進行「平行上傳」
+                if (studentIdFile) { uploadTasks.push(uploadFile(studentIdFile, `registrations/student_ids/${timestamp}_${studentIdFile.name}`, 'studentId').then(url => finalStudentIdUrl = url)); }
+                if (videoFile) { uploadTasks.push(uploadFile(videoFile, `registrations/videos/${timestamp}_${videoFile.name}`, 'video').then(url => finalVideoUrl = url)); }
+                if (presentationFile) { uploadTasks.push(uploadFile(presentationFile, `registrations/presentations/${timestamp}_${presentationFile.name}`, 'presentation').then(url => finalPresentationUrl = url)); }
 
                 if(uploadTasks.length > 0) {
                     await Promise.all(uploadTasks);
                 } else {
-                    updateOverallProgress();
+                    updateOverallProgress(); // 若都沒選檔案則直接滿 100%
                 }
 
                 document.getElementById('loadingText').innerHTML = '<i class="fa-solid fa-check-circle text-emerald-500 mr-2"></i> 檔案處理完成，正在儲存資料...';
 
-                // 收集表單資料
+                // 收集表單資料 (允許部分為空)
                 const members = [];
                 document.querySelectorAll('#membersContainer > div').forEach((div, index) => {
                     members.push({ role: index === 0 ? '隊長' : '隊員', name: div.querySelector('.member-name').value, school: div.querySelector('.member-school').value, department: div.querySelector('.member-dept').value });
@@ -621,7 +635,12 @@
                 const aiRecords = [];
                 document.querySelectorAll('#aiRecordsContainer > div').forEach(div => {
                     const tool = div.querySelector('.ai-tool').value;
-                    if(tool) { aiRecords.push({ tool: tool, type: div.querySelector('.ai-record-type').value, prompt: div.querySelector('.ai-prompt').value, usage: div.querySelector('.ai-usage').value }); }
+                    const type = div.querySelector('.ai-record-type').value;
+                    const prompt = div.querySelector('.ai-prompt').value;
+                    const usage = div.querySelector('.ai-usage').value;
+                    if(tool || type || prompt || usage) { // 只要有一項有填寫就記錄
+                        aiRecords.push({ tool, type, prompt, usage });
+                    }
                 });
 
                 const registrationData = {
@@ -631,18 +650,18 @@
                     team: { captainName: members[0].name, members: members, teachers: teachers },
                     projectDetails: { description: document.getElementById('projectDesc').value, targetAudience: document.getElementById('targetAudience').value, coreMessage: document.getElementById('coreMessage').value, cta: document.getElementById('cta').value },
                     aiData: { typesUsed: aiTypes, records: aiRecords },
-                    videoDelivery: { length: parseInt(document.getElementById('videoLength').value), youtubeLink: document.getElementById('youtubeLink').value },
-                    files: { studentIdUrl: finalStudentIdUrl, videoUrl: finalVideoUrl, presentationUrl: finalPresentationUrl },
+                    videoDelivery: { length: parseInt(document.getElementById('videoLength').value) || null, youtubeLink: document.getElementById('youtubeLink').value },
+                    files: { studentIdUrl: finalStudentIdUrl || null, videoUrl: finalVideoUrl || null, presentationUrl: finalPresentationUrl || null },
                     agreements: { agreed: true, signature: sig, timestamp: new Date() }
                 };
 
-                // 判斷是新增還是更新
+                // 寫入 Firebase
                 if (existingDocId) {
                     await updateDoc(doc(db, "registrations", existingDocId), registrationData);
-                    window.showMessage('success', '更新成功！', '您的報名資料與作品檔案已成功更新。');
+                    window.showMessage('success', '資料更新成功！', '您的報名進度已儲存。');
                 } else {
                     await addDoc(collection(db, "registrations"), registrationData);
-                    window.showMessage('success', '報名成功！', '您的資料與作品檔案已成功送出，感謝您的參與。');
+                    window.showMessage('success', '暫存報名成功！', '您的基本資料已送出，請記得於截止日前補齊缺件檔案。');
                 }
 
                 overlay.style.display = 'none';
