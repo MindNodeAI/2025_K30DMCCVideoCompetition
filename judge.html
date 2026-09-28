@@ -240,6 +240,20 @@
             }
         }
 
+        // --- 檢查缺件邏輯 ---
+        function getMissingItems(proj) {
+            let missing = [];
+            const data = proj;
+            const files = proj.files || {};
+            if (!data.projectDetails?.description || !data.projectDetails?.targetAudience || !data.projectDetails?.coreMessage || !data.projectDetails?.cta) missing.push("企劃內容簡介與行銷設定");
+            if ((data.aiData?.typesUsed?.length || 0) < 2) missing.push("AI 技術勾選不足 2 類");
+            if ((data.aiData?.records?.length || 0) < 3) missing.push("AI 使用紀錄未填滿 3 組");
+            if (!data.videoDelivery?.length || !data.videoDelivery?.youtubeLink) missing.push("YouTube 連結與影片長度");
+            if (!files.videoUrl) missing.push("MP4 影音原始檔");
+            if (!files.presentationUrl) missing.push("15 頁作品介紹簡報 PDF");
+            return missing;
+        }
+
         // 渲染作品卡片清單
         function renderProjects() {
             const grid = document.getElementById('projectsGrid');
@@ -249,6 +263,13 @@
             allProjects.forEach(proj => {
                 const hasScored = !!judgeScores[proj.id];
                 if (hasScored) scoredCount++;
+
+                // 檢查是否缺件
+                const missing = getMissingItems(proj);
+                const isComplete = missing.length === 0;
+                const completeBadge = isComplete
+                    ? `<span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded"><i class="fa-solid fa-check-circle mr-1"></i>齊全</span>`
+                    : `<span class="text-xs font-bold text-red-500 bg-red-50 border border-red-200 px-2 py-1 rounded"><i class="fa-solid fa-triangle-exclamation mr-1"></i>缺件 (${missing.length})</span>`;
 
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full hover:shadow-md transition";
@@ -263,6 +284,7 @@
                     <div class="p-5 flex-1 flex flex-col">
                         <div class="flex justify-between items-start mb-2">
                             <div class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">${proj.groupCategory}</div>
+                            ${completeBadge}
                         </div>
                         <h3 class="font-black text-lg text-slate-800 mb-1">${proj.projectName}</h3>
                         <p class="text-xs text-slate-500 mb-3">${proj.team?.school} | 代表人: ${proj.team?.captainName}</p>
@@ -297,8 +319,24 @@
             const vidUrl = proj.files?.videoUrl || '#';
             const presentationUrl = proj.files?.presentationUrl || '#';
             
+            // 準備缺件警告橫幅
+            const missing = getMissingItems(proj);
+            let missingWarning = '';
+            if (missing.length > 0) {
+                missingWarning = `
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4 shadow-sm">
+                        <h4 class="font-bold text-amber-900 mb-1 flex items-center"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-2"></i>評審請注意：此作品資料尚未繳齊</h4>
+                        <p class="text-xs text-amber-700 mb-2">參賽團隊尚缺以下項目，您仍可先行預覽或評分，或於評語中註記：</p>
+                        <ul class="text-xs text-amber-800 font-bold list-disc list-inside">
+                            ${missing.map(m => `<li>${m}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
             // 渲染左側作品詳細資訊
             document.getElementById('projectDetailContent').innerHTML = `
+                ${missingWarning}
                 <div class="mb-4">
                     <span class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded">${proj.groupCategory}</span>
                 </div>
