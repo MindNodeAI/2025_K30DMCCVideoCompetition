@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>評審評分系統 - 2050 永續生活短影音</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }</style>
+</head>
+<body class="antialiased text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- 登入畫面 -->
+    <div id="loginView" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+        <div class="bg-white/95 backdrop-blur p-10 rounded-3xl shadow-2xl max-w-md w-full mx-4 text-center">
+            <i class="fa-solid fa-gavel text-5xl text-blue-500 mb-6 mt-4"></i>
+            <h1 class="text-3xl font-black text-slate-800 mb-2">評審評分系統</h1>
+            <p class="text-slate-500 font-medium mb-8">2050 永續生活願景短影音競賽</p>
+            
+            <button id="googleSignInBtn" class="w-full flex items-center justify-center space-x-3 bg-white border-2 border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-3.5 px-4 rounded-xl transition shadow-sm mb-4">
+                <i class="fa-brands fa-google text-red-500 text-xl"></i><span>使用 Google 帳號登入</span>
+            </button>
+            <p id="loginErrorText" class="mt-4 text-red-500 text-sm font-bold hidden"></p>
+        </div>
+    </div>
+
+    <!-- 評審系統主畫面 -->
+    <div id="judgeView" class="hidden flex flex-col h-full w-full">
+        <!-- 頂部導覽 -->
+        <header class="bg-white shadow-sm border-b border-slate-200 shrink-0">
+            <div class="px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-blue-100 text-blue-600 p-2 rounded-lg"><i class="fa-solid fa-gavel text-xl"></i></div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-800">評分系統</h1>
+                        <p class="text-xs text-slate-500">負責組別：<span id="judgeGroupDisplay" class="font-bold text-blue-600">載入中...</span></p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="judgeNameDisplay" class="font-bold text-slate-600">評審老師</span>
+                    <button id="logoutBtn" class="text-slate-500 hover:text-red-500 text-sm bg-slate-100 px-3 py-1.5 rounded-lg transition"><i class="fa-solid fa-sign-out-alt"></i> 登出</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 作品列表區 -->
+        <main class="flex-1 overflow-auto p-6 bg-slate-50 relative">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-2xl font-black text-slate-800">待評分作品</h2>
+                    <div class="text-sm bg-white border border-slate-200 shadow-sm px-4 py-2 rounded-lg font-bold">
+                        進度：<span id="progressText" class="text-blue-600 text-base">0 / 0</span>
+                    </div>
+                </div>
+                <!-- 列表網格 -->
+                <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 作品卡片將透過 JS 動態產生 -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 評分彈出視窗 (Modal) -->
+    <div id="scoringModal" class="fixed inset-0 z-[100] hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 md:p-6 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full h-full max-w-7xl flex flex-col md:flex-row overflow-hidden transform scale-95 transition-transform duration-300" id="scoringModalCard">
+            
+            <!-- 左半部：作品資訊 (企劃內容與影片) -->
+            <div class="w-full md:w-1/2 lg:w-3/5 bg-slate-50 border-r border-slate-200 flex flex-col h-1/2 md:h-full">
+                <div class="px-6 py-4 bg-white border-b flex justify-between items-center shrink-0">
+                    <h2 class="text-lg font-black"><i class="fa-solid fa-play text-blue-500 mr-2"></i>作品檢視</h2>
+                    <button id="closeModalMobile" class="md:hidden text-slate-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="p-6 overflow-y-auto flex-1 space-y-6" id="projectDetailContent">
+                    <!-- 動態載入企劃內容、AI 紀錄與影片連結 -->
+                </div>
+            </div>
+
+            <!-- 右半部：評分表單 -->
+            <div class="w-full md:w-1/2 lg:w-2/5 bg-white flex flex-col h-1/2 md:h-full shadow-[-10px_0_15px_rgba(0,0,0,0.05)]">
+                <div class="px-6 py-4 border-b flex justify-between items-center shrink-0">
+                    <h2 class="text-lg font-black"><i class="fa-solid fa-clipboard-check text-emerald-500 mr-2"></i>評分表單</h2>
+                    <button id="closeModalBtn" class="hidden md:block text-slate-400 hover:text-red-500 text-xl transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                
+                <div class="p-6 overflow-y-auto flex-1">
+                    <form id="scoringForm" class="space-y-4">
+                        <input type="hidden" id="scoreProjectId">
+                        
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 hover:border-blue-300 transition">
+                            <label class="flex justify-between items-center text-sm font-bold mb-2">
+                                <span>1. 主題符合度 (20%)</span><span class="text-xs text-slate-400">上限 20</span>
+                            </label>
+                            <input type="number" id="scoreC1" required min="0" max="20" class="w-full p-2 border border-slate-300 rounded text-right font-bold score-input focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 hover:border-blue-300 transition">
+                            <label class="flex justify-between items-center text-sm font-bold mb-2">
+                                <span>2. 行銷溝通 (20%)</span><span class="text-xs text-slate-400">上限 20</span>
+                            </label>
+                            <input type="number" id="scoreC2" required min="0" max="20" class="w-full p-2 border border-slate-300 rounded text-right font-bold score-input focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 hover:border-blue-300 transition">
+                            <label class="flex justify-between items-center text-sm font-bold mb-2">
+                                <span>3. 行銷創意 (15%)</span><span class="text-xs text-slate-400">上限 15</span>
+                            </label>
+                            <input type="number" id="scoreC3" required min="0" max="15" class="w-full p-2 border border-slate-300 rounded text-right font-bold score-input focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 hover:border-blue-300 transition">
+                            <label class="flex justify-between items-center text-sm font-bold mb-2">
+                                <span>4. 影音剪輯 (20%)</span><span class="text-xs text-slate-400">上限 20</span>
+                            </label>
+                            <input type="number" id="scoreC4" required min="0" max="20" class="w-full p-2 border border-slate-300 rounded text-right font-bold score-input focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        
+                        <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 hover:border-emerald-400 transition">
+                            <label class="flex justify-between items-center text-sm font-bold mb-2 text-emerald-800">
+                                <span>5. AI 創新度 (25%)</span><span class="text-xs text-emerald-600">上限 25</span>
+                            </label>
+                            <input type="number" id="scoreC5" required min="0" max="25" class="w-full p-2 border border-emerald-300 rounded text-right font-bold score-input focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-1 text-slate-700">評語 (供主辦單位參考)</label>
+                            <textarea id="scoreComment" rows="3" class="w-full p-2 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="輸入您對此作品的講評..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 shrink-0">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-slate-700">計算總分</span>
+                        <div class="text-3xl font-black text-blue-600">
+                            <span id="totalScoreDisplay">0</span><span class="text-lg text-slate-400 font-bold ml-1">/ 100</span>
+                        </div>
+                    </div>
+                    <button form="scoringForm" type="submit" id="submitScoreBtn" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 shadow-lg transition">
+                        <i class="fa-solid fa-floppy-disk mr-2"></i>儲存評分
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query, where, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase 設定
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAEYCvKa3INWFyfkx8x7Lnb4f1GwyZzJI",
+            authDomain: "k30-2050-video-competition.firebaseapp.com",
+            projectId: "k30-2050-video-competition",
+            storageBucket: "k30-2050-video-competition.firebasestorage.app",
+            messagingSenderId: "757544431326",
+            appId: "1:757544431326:web:4885078737a81f14fe9c4f",
+            measurementId: "G-65ZP33NM0D"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        let currentJudge = null; 
+        let allProjects = [];
+        let judgeScores = {}; 
+
+        // Google 登入
+        document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+            try { 
+                await signInWithPopup(auth, provider); 
+            } catch (e) { 
+                alert("登入錯誤: " + e.message); 
+            }
+        });
+
+        // 登出
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+        // 監聽登入狀態並驗證評審資格
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    // 到 judges 集合檢查該信箱是否有被管理員設定為評審
+                    const judgeDoc = await getDoc(doc(db, "judges", user.email));
+                    if (judgeDoc.exists()) {
+                        currentJudge = judgeDoc.data();
+                        enterSystem();
+                    } else {
+                        // 若不在名單中，強制登出並提示
+                        await signOut(auth);
+                        document.getElementById('loginErrorText').textContent = "抱歉，您的信箱不在評審名單中，請聯絡主辦單位。";
+                        document.getElementById('loginErrorText').classList.remove('hidden');
+                    }
+                } catch (e) { 
+                    alert("權限檢查失敗，可能是 Firestore 規則阻擋"); 
+                    await signOut(auth); 
+                }
+            } else {
+                // 未登入顯示登入畫面
+                document.getElementById('loginView').classList.remove('hidden');
+                document.getElementById('judgeView').classList.add('hidden');
+            }
+        });
+
+        // 成功登入後，初始化系統
+        function enterSystem() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('judgeView').classList.remove('hidden');
+            document.getElementById('judgeNameDisplay').textContent = currentJudge.name;
+            document.getElementById('judgeGroupDisplay').textContent = currentJudge.group || "全部";
+            loadData();
+        }
+
+        // 讀取作品與該評審過去的評分紀錄
+        async function loadData() {
+            try {
+                // 1. 抓取作品 (依照評審負責的組別過濾)
+                let regQuery = query(collection(db, "registrations"));
+                if (currentJudge.group !== "全部") {
+                    regQuery = query(regQuery, where("groupCategory", "==", currentJudge.group));
+                }
+                const regSnap = await getDocs(regQuery);
+                allProjects = [];
+                regSnap.forEach(d => allProjects.push({ id: d.id, ...d.data() }));
+
+                // 2. 抓取該評審打過的分數
+                const scoreQuery = query(collection(db, "scores"), where("judgeEmail", "==", currentJudge.email));
+                const scoreSnap = await getDocs(scoreQuery);
+                judgeScores = {};
+                scoreSnap.forEach(d => { judgeScores[d.data().projectId] = d.data(); });
+                
+                renderProjects();
+            } catch (e) { 
+                alert("讀取資料失敗，請重新整理"); 
+            }
+        }
+
+        // 渲染作品卡片清單
+        function renderProjects() {
+            const grid = document.getElementById('projectsGrid');
+            grid.innerHTML = '';
+            let scoredCount = 0;
+
+            allProjects.forEach(proj => {
+                const hasScored = !!judgeScores[proj.id];
+                if (hasScored) scoredCount++;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full hover:shadow-md transition";
+                
+                // 狀態列標籤
+                const statusHtml = hasScored 
+                    ? `<div class="bg-blue-500 text-white text-xs font-bold p-2 text-center shadow-sm">已完成評分 : ${judgeScores[proj.id].totalScore} 分</div>` 
+                    : `<div class="bg-amber-100 text-amber-700 border-b border-amber-200 text-xs font-bold p-2 text-center">待評分</div>`;
+                
+                card.innerHTML = `
+                    ${statusHtml}
+                    <div class="p-5 flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">${proj.groupCategory}</div>
+                        </div>
+                        <h3 class="font-black text-lg text-slate-800 mb-1">${proj.projectName}</h3>
+                        <p class="text-xs text-slate-500 mb-3">${proj.team?.school} | 代表人: ${proj.team?.captainName}</p>
+                        
+                        <p class="text-sm text-slate-600 flex-1 line-clamp-3 mb-4 leading-relaxed">${proj.projectDetails?.description || '未提供簡介'}</p>
+                        
+                        <button type="button" class="open-score-btn w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-lg transition" data-id="${proj.id}">
+                            ${hasScored ? '修改評分' : '進行評分'}
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            // 更新進度條文字
+            document.getElementById('progressText').textContent = `${scoredCount} / ${allProjects.length}`;
+            
+            // 綁定所有「進行評分」按鈕事件
+            document.querySelectorAll('.open-score-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    openScoringModal(e.currentTarget.getAttribute('data-id'));
+                });
+            });
+        }
+
+        // 開啟評分 Modal 並載入該作品資料
+        window.openScoringModal = function(id) {
+            const proj = allProjects.find(p => p.id === id);
+            if (!proj) return;
+
+            const ytLink = proj.videoDelivery?.youtubeLink || '#';
+            const vidUrl = proj.files?.videoUrl || '#';
+            
+            // 渲染左側作品詳細資訊
+            document.getElementById('projectDetailContent').innerHTML = `
+                <div class="mb-4">
+                    <span class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded">${proj.groupCategory}</span>
+                </div>
+                <h1 class="text-2xl font-black text-slate-800 mb-4">${proj.projectName}</h1>
+                <p class="text-sm text-slate-600 mb-6 leading-loose">${proj.projectDetails?.description}</p>
+                
+                <!-- 影片觀看按鈕 -->
+                <div class="flex flex-col sm:flex-row gap-3 mb-8">
+                    <a href="${ytLink}" target="_blank" class="flex-1 flex justify-center items-center bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold hover:bg-red-100 transition shadow-sm">
+                        <i class="fa-brands fa-youtube mr-2 text-xl"></i> 觀看 YouTube 影片
+                    </a>
+                    <a href="${vidUrl}" target="_blank" class="flex-1 flex justify-center items-center bg-slate-100 text-slate-700 border border-slate-200 py-3 rounded-xl font-bold hover:bg-slate-200 transition shadow-sm">
+                        <i class="fa-solid fa-download mr-2 text-xl"></i> 下載 MP4 原檔
+                    </a>
+                </div>
+
+                <div class="bg-white p-5 border border-slate-200 rounded-2xl mb-6 shadow-sm">
+                    <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3"><i class="fa-solid fa-bullseye text-blue-500 mr-2"></i>企劃與行銷設定</h3>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <p><strong class="text-slate-700">目標受眾 (TA)：</strong> ${proj.projectDetails?.targetAudience || '未填寫'}</p>
+                        <p><strong class="text-slate-700">核心訊息：</strong> ${proj.projectDetails?.coreMessage || '未填寫'}</p>
+                        <p><strong class="text-slate-700">行動呼籲 (CTA)：</strong> ${proj.projectDetails?.cta || '未填寫'}</p>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 p-5 border border-purple-100 rounded-2xl shadow-sm">
+                    <h3 class="font-bold text-purple-900 border-b border-purple-200 pb-2 mb-3"><i class="fa-solid fa-robot mr-2"></i>生成式 AI 使用紀錄</h3>
+                    <p class="text-xs text-purple-700 mb-3 font-bold">使用的技術類型：${(proj.aiData?.typesUsed || []).join(', ')}</p>
+                    <div class="space-y-4">
+                        ${(proj.aiRecords || proj.aiData?.records || []).map((r, i) => `
+                            <div class="bg-white p-3 rounded-lg border border-purple-100 text-sm">
+                                <div class="font-bold text-purple-800 mb-1">${i+1}. ${r.tool} <span class="text-xs font-normal text-slate-500 ml-1">(${r.type})</span></div>
+                                <div class="text-slate-600 text-xs mb-1"><strong class="text-slate-700">Prompt:</strong> ${r.prompt}</div>
+                                <div class="text-slate-600 text-xs"><strong class="text-slate-700">用途:</strong> ${r.usage}</div>
+                            </div>
+                        `).join('') || '<p class="text-slate-500 text-sm">無紀錄</p>'}
+                    </div>
+                </div>
+            `;
+
+            // 設定右側表單隱藏欄位
+            document.getElementById('scoreProjectId').value = id;
+            document.getElementById('scoringForm').reset();
+            
+            // 若該作品已經評過分，將過去的分數填入表單
+            if(judgeScores[id]) {
+                document.getElementById('scoreC1').value = judgeScores[id].c1 || 0;
+                document.getElementById('scoreC2').value = judgeScores[id].c2 || 0;
+                document.getElementById('scoreC3').value = judgeScores[id].c3 || 0;
+                document.getElementById('scoreC4').value = judgeScores[id].c4 || 0;
+                document.getElementById('scoreC5').value = judgeScores[id].c5 || 0;
+                document.getElementById('scoreComment').value = judgeScores[id].comment || '';
+            }
+            calcTotal();
+
+            // 顯示 Modal 動畫
+            const modal = document.getElementById('scoringModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                modal.classList.add('opacity-100'); 
+                document.getElementById('scoringModalCard').classList.add('scale-100'); 
+            }, 10);
+        }
+
+        // 關閉 Modal
+        const closeFn = () => {
+            document.getElementById('scoringModal').classList.remove('opacity-100');
+            document.getElementById('scoringModalCard').classList.remove('scale-100');
+            setTimeout(() => document.getElementById('scoringModal').classList.add('hidden'), 300);
+        };
+        document.getElementById('closeModalBtn').addEventListener('click', closeFn);
+        document.getElementById('closeModalMobile').addEventListener('click', closeFn);
+
+        // 即時計算總分
+        function calcTotal() {
+            let total = 0;
+            document.querySelectorAll('.score-input').forEach(input => {
+                let v = parseInt(input.value) || 0;
+                let max = parseInt(input.getAttribute('max'));
+                if(v > max) input.value = max; // 防止超過上限
+                if(v < 0) input.value = 0;     // 防止負分
+                total += parseInt(input.value) || 0;
+            });
+            document.getElementById('totalScoreDisplay').textContent = total;
+            
+            // 滿分視覺效果
+            if(total === 100) {
+                document.getElementById('totalScoreDisplay').classList.add('text-emerald-500');
+                document.getElementById('totalScoreDisplay').classList.remove('text-blue-600');
+            } else {
+                document.getElementById('totalScoreDisplay').classList.remove('text-emerald-500');
+                document.getElementById('totalScoreDisplay').classList.add('text-blue-600');
+            }
+        }
+        
+        // 綁定輸入框事件以觸發總分計算
+        document.querySelectorAll('.score-input').forEach(input => {
+            input.addEventListener('input', calcTotal);
+        });
+
+        // 提交評分表單
+        document.getElementById('scoringForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pid = document.getElementById('scoreProjectId').value;
+            const proj = allProjects.find(p => p.id === pid);
+            
+            const data = {
+                judgeEmail: currentJudge.email, 
+                judgeName: currentJudge.name,
+                projectId: pid, 
+                projectName: proj.projectName,
+                c1: parseInt(document.getElementById('scoreC1').value) || 0,
+                c2: parseInt(document.getElementById('scoreC2').value) || 0,
+                c3: parseInt(document.getElementById('scoreC3').value) || 0,
+                c4: parseInt(document.getElementById('scoreC4').value) || 0,
+                c5: parseInt(document.getElementById('scoreC5').value) || 0,
+                totalScore: parseInt(document.getElementById('totalScoreDisplay').textContent),
+                comment: document.getElementById('scoreComment').value,
+                updatedAt: new Date()
+            };
+
+            // 寫入 Firestore scores 集合
+            try {
+                document.getElementById('submitScoreBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>儲存中...';
+                await setDoc(doc(db, "scores", `${currentJudge.email}_${pid}`), data);
+                
+                judgeScores[pid] = data; 
+                renderProjects(); 
+                closeFn();
+                document.getElementById('submitScoreBtn').innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i>儲存評分';
+            } catch (error) { 
+                alert("儲存失敗: " + error.message); 
+                document.getElementById('submitScoreBtn').innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i>儲存評分';
+            }
+        });
+    </script>
+</body>
+</html>
