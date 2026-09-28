@@ -350,7 +350,6 @@
 
         // 第二步驗證邏輯 (檢查勾選 2 類 AI)
         window.validateStep2AndNext = function() {
-            // Check HTML5 required fields first
             const valid = document.getElementById('step2').querySelectorAll(':invalid').length === 0;
             if(!valid) {
                 window.showMessage('error', '資料未填妥', '請完成本頁所有必填欄位 (包含 3 組必填 AI 紀錄)。');
@@ -406,20 +405,16 @@
                     });
                 };
 
-                // 1. 上傳學生證
                 document.getElementById('loadingText').textContent = "正在上傳學生證明文件...";
                 progressBar.style.width = '0%';
                 const studentIdUrl = await uploadFile(studentIdFile, `registrations/student_ids/${timestamp}_${studentIdFile.name}`);
 
-                // 2. 上傳影片
                 document.getElementById('loadingText').textContent = "正在上傳 MP4 作品 (這可能需要一段時間)...";
                 progressBar.style.width = '0%';
                 const videoUrl = await uploadFile(videoFile, `registrations/videos/${timestamp}_${videoFile.name}`);
 
-                // 3. 收集文字資料
                 document.getElementById('loadingText').textContent = "正在儲存報名資料...";
                 
-                // 收集隊員
                 const members = [];
                 document.querySelectorAll('#membersContainer > div').forEach((div, index) => {
                     members.push({
@@ -430,7 +425,6 @@
                     });
                 });
 
-                // 收集老師
                 const teachers = [];
                 document.querySelectorAll('#teachersContainer > div').forEach(div => {
                     teachers.push({
@@ -439,7 +433,6 @@
                     });
                 });
 
-                // 收集 AI 紀錄
                 const aiTypes = Array.from(document.querySelectorAll('.ai-type-cb:checked')).map(cb => cb.value);
                 const aiRecords = [];
                 document.querySelectorAll('#aiRecordsContainer > div').forEach(div => {
@@ -457,29 +450,19 @@
                 const registrationData = {
                     groupCategory: document.getElementById('groupCategory').value,
                     projectName: document.getElementById('projectName').value,
-                    team: {
-                        captainName: members[0].name,
-                        members: members,
-                        teachers: teachers
-                    },
+                    team: { captainName: members[0].name, members: members, teachers: teachers },
                     projectDetails: {
                         description: document.getElementById('projectDesc').value,
                         targetAudience: document.getElementById('targetAudience').value,
                         coreMessage: document.getElementById('coreMessage').value,
                         cta: document.getElementById('cta').value
                     },
-                    aiData: {
-                        typesUsed: aiTypes,
-                        records: aiRecords
-                    },
+                    aiData: { typesUsed: aiTypes, records: aiRecords },
                     videoDelivery: {
                         length: parseInt(document.getElementById('videoLength').value),
                         youtubeLink: document.getElementById('youtubeLink').value
                     },
-                    files: {
-                        studentIdUrl: studentIdUrl,
-                        videoUrl: videoUrl
-                    },
+                    files: { studentIdUrl: studentIdUrl, videoUrl: videoUrl },
                     agreements: {
                         agreed: document.getElementById('agreeCheckbox').checked,
                         signature: sig,
@@ -487,12 +470,9 @@
                     }
                 };
 
-                // 4. 寫入 Firestore
                 await addDoc(collection(db, "registrations"), registrationData);
 
                 overlay.style.display = 'none';
-                
-                // 成功提示並返回首頁
                 document.getElementById('registrationForm').reset();
                 window.showMessage('success', '報名成功！', '您的資料與作品已成功送出，感謝您的參與。');
                 setTimeout(() => { window.location.href = 'index.html'; }, 3000);
