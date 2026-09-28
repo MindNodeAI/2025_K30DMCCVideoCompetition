@@ -223,18 +223,37 @@
                             </li>
                         </ul>
                         
-                        <div class="mt-10 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                            <h4 class="font-bold text-slate-800 mb-4 flex items-center"><i class="fa-regular fa-calendar-check text-eco-blue mr-2"></i> 活動時程</h4>
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                                    <span class="text-slate-500">報名及資料上傳截止</span>
-                                    <span class="text-eco-dark font-black">2026/11/27 (五) 23:59</span>
+                        <div class="mt-8 space-y-4">
+                            <!-- 新增：醒目的重要報名須知提示框 -->
+                            <div class="bg-amber-50 p-6 rounded-2xl border border-amber-200 shadow-sm relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-2 h-full bg-amber-400"></div>
+                                <h4 class="font-bold text-amber-900 mb-3 flex items-center"><i class="fa-solid fa-laptop-file text-amber-600 mr-2 text-lg"></i> 報名方式與重要提醒</h4>
+                                <ul class="space-y-3 text-sm text-amber-800 font-medium leading-relaxed">
+                                    <li class="flex items-start">
+                                        <i class="fa-solid fa-triangle-exclamation mt-1 mr-2 text-amber-500"></i>
+                                        <div>本競賽<strong class="mx-1 text-amber-900 bg-amber-200/50 px-1 rounded">一律採線上報名</strong>，無須寄送紙本或 E-mail。</div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fa-solid fa-lightbulb mt-1 mr-2 text-amber-500"></i>
+                                        <div><strong class="text-amber-900">貼心提醒：</strong>參賽者可先填寫基本資料<strong class="mx-1 text-amber-900">暫存並送出</strong>線上報名，只要於 <span class="font-black">2026/11/27 23:59 截止前</span>，隨時皆可登入補齊或更新所有資料、證明文件及作品檔案。</div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- 原有的活動時程 -->
+                            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                                <h4 class="font-bold text-slate-800 mb-4 flex items-center"><i class="fa-regular fa-calendar-check text-eco-blue mr-2"></i> 活動時程</h4>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                                        <span class="text-slate-500">報名及資料上傳截止</span>
+                                        <span class="text-eco-dark font-black text-right">2026/11/27 (五)<br class="md:hidden"> 23:59</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pb-1">
+                                        <span class="text-slate-500">得獎結果公告</span>
+                                        <span class="text-eco-blue font-black">2026/12/07 (一)</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-2 text-right">※ 採一次投稿、一次評選，無第二階段評選。</p>
                                 </div>
-                                <div class="flex justify-between items-center pb-1">
-                                    <span class="text-slate-500">得獎結果公告</span>
-                                    <span class="text-eco-blue font-black">2026/12/07 (一)</span>
-                                </div>
-                                <p class="text-xs text-slate-400 mt-2 text-right">※ 採一次投稿、一次評選，無第二階段評選。</p>
                             </div>
                         </div>
                     </div>
