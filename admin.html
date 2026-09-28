@@ -369,10 +369,12 @@
             const ytLink = reg.videoDelivery?.youtubeLink || '#';
             const vidUrl = reg.files?.videoUrl || '#';
             const idUrl = reg.files?.studentIdUrl || '#';
+            const presentationUrl = reg.files?.presentationUrl || '#';
 
             document.getElementById('modalFooter').innerHTML = `
                 <a href="${idUrl}" target="_blank" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-300 transition shadow-sm"><i class="fa-solid fa-id-card mr-1"></i> 檢視學生證</a>
-                <a href="${vidUrl}" target="_blank" class="bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-700 transition shadow-sm"><i class="fa-solid fa-download mr-1"></i> 下載 MP4</a>
+                <a href="${presentationUrl}" target="_blank" class="bg-blue-50 text-blue-600 border border-blue-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-100 transition shadow-sm"><i class="fa-regular fa-file-pdf mr-1"></i> 作品簡報</a>
+                <a href="${vidUrl}" target="_blank" class="bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-700 transition shadow-sm"><i class="fa-solid fa-download mr-1"></i> MP4 原檔</a>
                 <a href="${ytLink}" target="_blank" class="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-100 transition shadow-sm"><i class="fa-brands fa-youtube mr-1"></i> YouTube</a>
             `;
 
