@@ -294,6 +294,21 @@
             loadRegistrations();
         });
 
+        // --- 檢查缺件邏輯 ---
+        function getMissingItems(proj) {
+            let missing = [];
+            const data = proj;
+            const files = proj.files || {};
+            if (!data.projectDetails?.description || !data.projectDetails?.targetAudience || !data.projectDetails?.coreMessage || !data.projectDetails?.cta) missing.push("企劃內容簡介與行銷設定");
+            if ((data.aiData?.typesUsed?.length || 0) < 2) missing.push("AI 技術勾選不足 2 類");
+            if ((data.aiData?.records?.length || 0) < 3) missing.push("AI 使用紀錄未填滿 3 組");
+            if (!data.videoDelivery?.length || !data.videoDelivery?.youtubeLink) missing.push("YouTube 連結與影片長度");
+            if (!files.videoUrl) missing.push("MP4 影音原始檔");
+            if (!files.presentationUrl) missing.push("15 頁作品介紹簡報 PDF");
+            if (!files.studentIdUrl) missing.push("全體隊員學生證/在學證明");
+            return missing;
+        }
+
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
@@ -302,10 +317,20 @@
             allRegistrations.forEach(reg => {
                 const date = reg.agreements?.timestamp ? new Date(reg.agreements.timestamp.seconds ? reg.agreements.timestamp.seconds * 1000 : reg.agreements.timestamp).toLocaleDateString() : '未知';
                 
+                // 判斷缺件狀態
+                const missing = getMissingItems(reg);
+                let statusBadge = '';
+                if(missing.length === 0) {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-check-circle mr-1"></i>資料齊全</span>`;
+                } else {
+                    statusBadge = `<span class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-bold shadow-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>缺件 (${missing.length})</span>`;
+                }
+                
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                 tr.innerHTML = `
                     <td class="p-4 text-slate-500">${date}</td>
+                    <td class="p-4">${statusBadge}</td>
                     <td class="p-4"><span class="bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs font-bold">${reg.groupCategory}</span></td>
                     <td class="p-4 font-bold text-slate-800">${reg.projectName}</td>
                     <td class="p-4">${reg.team?.school} / ${reg.team?.captainName}</td>
@@ -330,6 +355,20 @@
 
             document.getElementById('modalProjName').textContent = reg.projectName;
             
+            // 缺件警告區塊
+            const missing = getMissingItems(reg);
+            let missingWarning = '';
+            if (missing.length > 0) {
+                missingWarning = `
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4 shadow-sm">
+                        <h4 class="font-bold text-amber-900 mb-1 flex items-center"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-2"></i>系統提示：此作品資料尚未繳齊</h4>
+                        <ul class="text-xs text-amber-800 font-bold list-disc list-inside mt-2">
+                            ${missing.map(m => `<li>${m}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
             const membersHtml = (reg.team?.members || []).map(m => `<li class="mb-1"><span class="font-bold text-slate-700">${m.role}：</span>${m.name} <span class="text-slate-500">(${m.school} ${m.department})</span></li>`).join('');
             const teachersHtml = (reg.team?.teachers || []).map(t => `<li class="mb-1">${t.name} <span class="text-slate-500">(${t.school})</span></li>`).join('');
             
@@ -342,6 +381,7 @@
             `).join('');
 
             document.getElementById('modalContent').innerHTML = `
+                ${missingWarning}
                 <div class="grid grid-cols-2 gap-4 mb-2">
                     <div class="bg-white border border-slate-200 p-3 rounded-xl shadow-sm"><strong class="block mb-1 text-slate-400 text-xs">參賽組別</strong><span class="font-bold text-blue-600">${reg.groupCategory}</span></div>
                     <div class="bg-white border border-slate-200 p-3 rounded-xl shadow-sm"><strong class="block mb-1 text-slate-400 text-xs">隊長簽名</strong><span class="font-bold text-slate-700">${reg.agreements?.signature}</span></div>
