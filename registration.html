@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>參賽報名 - 2050 永續生活願景短影音競賽</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -21,8 +21,21 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col relative">
 
+    <!-- LINE/FB 內建瀏覽器警告 Banner -->
+    <div id="inAppBrowserWarning" class="hidden bg-red-600 text-white p-4 text-center sticky top-0 z-[100] shadow-md w-full">
+        <div class="max-w-xl mx-auto">
+            <i class="fa-solid fa-triangle-exclamation text-yellow-300 mr-2 text-2xl"></i>
+            <span class="block mb-2 text-lg font-black tracking-wide">系統偵測到您正使用 LINE 或 FB 內建瀏覽器</span>
+            <div class="text-sm font-bold bg-black/20 p-3 rounded-xl leading-relaxed text-left inline-block">
+                這會導致 Google 登入功能被阻擋而無法報名！<br>
+                👉 請點擊畫面右上角「<i class="fa-solid fa-ellipsis-vertical mx-1"></i>」或右下角「<i class="fa-regular fa-compass mx-1"></i>」<br>
+                👉 選擇 <strong class="text-yellow-300">「以預設瀏覽器開啟」</strong> (如 Safari 或 Chrome) 即可正常報名。
+            </div>
+        </div>
+    </div>
+
     <!-- 學生登入畫面 -->
-    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] transition-opacity duration-300">
         <div class="bg-white/95 backdrop-blur p-10 rounded-3xl shadow-2xl max-w-md w-full mx-4 text-center">
             <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
                 <i class="fa-solid fa-user-graduate text-4xl text-emerald-600"></i>
@@ -31,7 +44,7 @@
             <p class="text-slate-500 font-medium text-sm mb-8 leading-relaxed">請登入您的 Google 帳號以建立報名表。<br>若您已經報名過，系統將自動載入資料供您修改或補件。</p>
             
             <button id="googleSignInBtn" class="w-full flex items-center justify-center space-x-3 bg-white border-2 border-slate-200 hover:bg-slate-50 hover:border-emerald-300 text-slate-700 font-bold py-4 px-4 rounded-xl transition shadow-sm mb-4">
-                <i class="fa-brands fa-google text-red-500 text-xl"></i><span>使用 Google 帳號登入</span>
+                <i class="fa-brands fa-google text-red-500 text-xl"></i><span id="loginBtnText">使用 Google 帳號登入</span>
             </button>
         </div>
     </div>
@@ -91,7 +104,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block font-bold text-slate-700 mb-2">參賽組別 <span class="text-red-500">*</span></label>
-                                <select id="groupCategory" required class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition bg-white">
+                                <select id="groupCategory" required data-name="參賽組別" class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition bg-white">
                                     <option value="">請選擇組別</option>
                                     <option value="大專校院組">大專校院組</option>
                                     <option value="高中職組">高中職組</option>
@@ -99,7 +112,7 @@
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-2">作品名稱 <span class="text-red-500">*</span></label>
-                                <input type="text" id="projectName" required class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition" placeholder="請輸入作品名稱">
+                                <input type="text" id="projectName" required data-name="作品名稱" class="w-full p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition" placeholder="請輸入作品名稱">
                             </div>
                         </div>
 
@@ -254,18 +267,18 @@
                                 6. 得獎作品及必要公開資訊，得保留於本系網站，並由本系於非營利範圍內長期無償使用。
                             </div>
                             <label class="flex items-start mb-5 cursor-pointer group">
-                                <input type="checkbox" id="agreeCheckbox" required class="mt-1 mr-3 w-5 h-5 text-emerald-600 rounded border-slate-300 cursor-pointer">
+                                <input type="checkbox" id="agreeCheckbox" required data-name="授權同意書勾選" class="mt-1 mr-3 w-5 h-5 text-emerald-600 rounded border-slate-300 cursor-pointer">
                                 <span class="text-sm font-bold text-slate-700 group-hover:text-emerald-600 transition">團隊全體成員均已知悉並完全同意上述授權書內容。</span>
                             </label>
                             <div class="bg-white p-4 rounded-xl border border-slate-200">
                                 <label class="block font-bold text-slate-700 mb-2">電子簽名 (請輸入隊長姓名代表同意) <span class="text-red-500">*</span></label>
-                                <input type="text" id="captainSignature" required class="w-full md:w-1/2 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition">
+                                <input type="text" id="captainSignature" required data-name="隊長電子簽名" class="w-full md:w-1/2 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition">
                             </div>
                         </div>
 
                         <!-- 最終確認 -->
                         <div class="bg-gradient-to-r from-emerald-600 to-emerald-500 text-white p-6 rounded-2xl shadow-lg flex items-center">
-                            <input type="checkbox" id="finalCheck" required class="mr-4 w-6 h-6 rounded border-none cursor-pointer">
+                            <input type="checkbox" id="finalCheck" required data-name="最終確認勾選" class="mr-4 w-6 h-6 rounded border-none cursor-pointer">
                             <span class="font-bold text-lg">我已確認所有填寫的資料與上傳的檔案。</span>
                         </div>
 
@@ -310,7 +323,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, doc, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
@@ -333,10 +346,50 @@
         let existingDocId = null; 
         let existingFiles = {};   
 
-        // 登入與登出
+        function checkInAppBrowser() {
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            const isLine = (ua.indexOf("Line") > -1);
+            const isFB = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("Instagram") > -1);
+            
+            if (isLine || isFB) {
+                document.getElementById('inAppBrowserWarning').classList.remove('hidden');
+                document.getElementById('loginBtnText').textContent = "請先用 Safari/Chrome 開啟";
+                document.getElementById('googleSignInBtn').classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        checkInAppBrowser();
+
+        getRedirectResult(auth).then((result) => {
+            if (result) {
+                // Successfully logged in via redirect (Mobile)
+                document.getElementById('loginScreen').classList.add('hidden');
+            }
+        }).catch((error) => {
+            window.showMessage('error', '登入失敗', error.message);
+        });
+
         document.getElementById('googleSignInBtn').addEventListener('click', async () => {
-            try { await signInWithPopup(auth, provider); } 
-            catch (error) { window.showMessage('error', '登入失敗', error.message); }
+            if (!document.getElementById('inAppBrowserWarning').classList.contains('hidden')) {
+                window.showMessage('info', '請更換瀏覽器', '在 LINE 或 FB 內建瀏覽器中無法登入 Google。請點擊右上角選單，選擇「以預設瀏覽器開啟」。');
+                return;
+            }
+
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            try {
+                // 手機版強制使用 Redirect，電腦版使用 Popup
+                if (isMobile) {
+                    await signInWithRedirect(auth, provider);
+                } else {
+                    await signInWithPopup(auth, provider);
+                }
+            } catch (error) { 
+                // Popup 若被阻擋，降級為 Redirect
+                if (error.code === 'auth/popup-blocked') {
+                    await signInWithRedirect(auth, provider);
+                } else {
+                    window.showMessage('error', '登入異常', error.message); 
+                }
+            }
         });
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -474,10 +527,10 @@
             const roleClass = isCaptain ? "bg-emerald-500 text-white shadow-sm" : "bg-slate-200 text-slate-600";
             div.innerHTML = `
                 <div class="absolute -top-3 -left-2 ${roleClass} text-xs font-black px-3 py-1 rounded-lg">${roleLabel}</div>
-                <input type="text" class="member-name mt-2 md:mt-0 w-full md:w-1/3 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500" placeholder="姓名 *" value="${name}" required>
-                <input type="text" class="member-school mt-2 md:mt-0 w-full md:w-1/3 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500" placeholder="學校 *" value="${school}" required>
-                <input type="text" class="member-dept mt-2 md:mt-0 w-full md:w-1/3 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500" placeholder="科系 *" value="${dept}" required>
-                ${!isCaptain ? `<button type="button" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 transition" onclick="this.parentElement.remove();"><i class="fa-solid fa-circle-xmark text-lg"></i></button>` : ''}
+                <input type="text" data-name="團隊成員姓名" class="member-name mt-2 md:mt-0 w-full md:w-1/3 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500" placeholder="姓名 *" value="${name}" required>
+                <input type="text" data-name="團隊成員學校" class="member-school mt-2 md:mt-0 w-full md:w-1/3 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500" placeholder="學校 *" value="${school}" required>
+                <input type="text" data-name="團隊成員科系" class="member-dept mt-2 md:mt-0 w-full md:w-1/3 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500" placeholder="科系 *" value="${dept}" required>
+                ${!isCaptain ? `<button type="button" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 p-2 transition" onclick="this.parentElement.remove();"><i class="fa-solid fa-circle-xmark text-xl"></i></button>` : ''}
             `;
             document.getElementById('membersContainer').appendChild(div);
         }
@@ -491,9 +544,9 @@
             const div = document.createElement('div');
             div.className = "flex flex-col md:flex-row gap-4 bg-white p-5 rounded-xl border border-blue-100 shadow-sm relative";
             div.innerHTML = `
-                <input type="text" class="teacher-name w-full md:w-1/2 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="指導老師姓名 *" value="${name}" required>
-                <input type="text" class="teacher-school w-full md:w-1/2 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="任教學校 *" value="${school}" required>
-                <button type="button" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 transition" onclick="this.parentElement.remove();"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
+                <input type="text" data-name="指導老師姓名" class="teacher-name w-full md:w-1/2 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="指導老師姓名 *" value="${name}" required>
+                <input type="text" data-name="指導老師學校" class="teacher-school w-full md:w-1/2 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="任教學校 *" value="${school}" required>
+                <button type="button" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 p-2 transition" onclick="this.parentElement.remove();"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
             `;
             document.getElementById('teachersContainer').appendChild(div);
         }
@@ -514,7 +567,7 @@
                 </div>
                 <textarea class="ai-prompt w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 mb-3 text-sm resize-none" rows="2" placeholder="使用的提示詞 (Prompt)">${prompt}</textarea>
                 <textarea class="ai-usage w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm resize-none" rows="2" placeholder="產出內容與實際運用於作品的方式">${usage}</textarea>
-                ${removable ? `<button type="button" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition" onclick="this.parentElement.remove()"><i class="fa-solid fa-circle-xmark text-lg"></i></button>` : ''}
+                ${removable ? `<button type="button" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 p-2 transition" onclick="this.parentElement.remove()"><i class="fa-solid fa-circle-xmark text-xl"></i></button>` : ''}
             `;
             document.getElementById('aiRecordsContainer').appendChild(div);
         }
@@ -552,19 +605,30 @@
         document.getElementById('registrationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // 解決「按了沒反應」：手動驗證，若有漏填，自動切換到該步驟並提示
+            // 解決「手機版吃掉原生警告」：手動驗證並強制跳出客製化錯誤提示
             const form = e.target;
             if (!form.checkValidity()) {
-                const firstInvalid = form.querySelector(':invalid');
-                if (firstInvalid) {
+                const invalidInputs = form.querySelectorAll(':invalid');
+                if (invalidInputs.length > 0) {
+                    const firstInvalid = invalidInputs[0];
                     const stepSection = firstInvalid.closest('.form-section');
+                    
                     if (stepSection) {
                         const stepNum = parseInt(stepSection.id.replace('step', ''));
                         window.nextStep(stepNum); // 自動切換到漏填的步驟
-                        setTimeout(() => firstInvalid.reportValidity(), 100); // 顯示紅色原生提示框
+                        
+                        // 取得自訂欄位名稱，或 fallback 到 placeholder/預設文字
+                        let fieldName = firstInvalid.getAttribute('data-name') || firstInvalid.placeholder || '必填欄位';
+                        
+                        window.showMessage('error', '資料未填妥', `請檢查步驟 ${stepNum} 中的「${fieldName}」是否已正確填寫。`);
+                        
+                        // 將漏填欄位標紅框以吸引注意
+                        firstInvalid.classList.add('border-red-500', 'ring-2', 'ring-red-500', 'bg-red-50');
+                        setTimeout(() => firstInvalid.classList.remove('border-red-500', 'ring-2', 'ring-red-500', 'bg-red-50'), 4000);
+                        setTimeout(() => firstInvalid.scrollIntoView({behavior: 'smooth', block: 'center'}), 400);
                     }
                 }
-                return; // 停止後續送出流程
+                return; // 停止送出
             }
 
             const captainName = document.querySelector('.member-name').value;
@@ -575,7 +639,7 @@
 
             const overlay = document.getElementById('loadingOverlay');
             document.getElementById('loadingTitle').textContent = "正在處理您的資料";
-            document.getElementById('loadingText').innerHTML = '這可能需要幾分鐘的時間，請勿關閉視窗...';
+            document.getElementById('loadingText').innerHTML = '這可能需要幾分鐘的時間，手機請勿關閉螢幕或切換APP...';
             document.getElementById('uploadProgressBar').parentElement.classList.remove('hidden');
             document.getElementById('progressPercent').parentElement.classList.remove('hidden');
             
@@ -618,19 +682,19 @@
                             },
                             (error) => reject(error),
                             async () => { 
-                                // 解決「卡在100%」：加入 try-catch 攔截權限錯誤，防止 Promise 死鎖
+                                // 解決「卡在100%」：攔截 Firebase 權限造成的死鎖
                                 try {
                                     const url = await getDownloadURL(uploadTask.snapshot.ref);
                                     resolve(url);
                                 } catch (err) {
-                                    reject(new Error(`取得檔案連結失敗 (可能是 Storage 權限問題): ${err.message}`));
+                                    reject(new Error(`取得檔案連結失敗，這通常是因為 Firebase 權限規則設定問題: ${err.message}`));
                                 }
                             }
                         );
                     });
                 };
 
-                // 啟動所有選擇的檔案進行「平行上傳」
+                // 平行上傳
                 if (studentIdFile) { uploadTasks.push(uploadFile(studentIdFile, `registrations/student_ids/${timestamp}_${studentIdFile.name}`, 'studentId').then(url => finalStudentIdUrl = url)); }
                 if (videoFile) { uploadTasks.push(uploadFile(videoFile, `registrations/videos/${timestamp}_${videoFile.name}`, 'video').then(url => finalVideoUrl = url)); }
                 if (presentationFile) { uploadTasks.push(uploadFile(presentationFile, `registrations/presentations/${timestamp}_${presentationFile.name}`, 'presentation').then(url => finalPresentationUrl = url)); }
@@ -638,12 +702,12 @@
                 if(uploadTasks.length > 0) {
                     await Promise.all(uploadTasks);
                 } else {
-                    updateOverallProgress(); // 若都沒選檔案則直接滿 100%
+                    updateOverallProgress(); // 沒選新檔案直接滿 100%
                 }
 
                 document.getElementById('loadingText').innerHTML = '<i class="fa-solid fa-check-circle text-emerald-500 mr-2"></i> 檔案處理完成，正在儲存資料...';
 
-                // 收集表單資料 (允許部分為空)
+                // 收集表單資料
                 const members = [];
                 document.querySelectorAll('#membersContainer > div').forEach((div, index) => {
                     members.push({ role: index === 0 ? '隊長' : '隊員', name: div.querySelector('.member-name').value, school: div.querySelector('.member-school').value, department: div.querySelector('.member-dept').value });
@@ -661,7 +725,7 @@
                     const type = div.querySelector('.ai-record-type').value;
                     const prompt = div.querySelector('.ai-prompt').value;
                     const usage = div.querySelector('.ai-usage').value;
-                    if(tool || type || prompt || usage) { // 只要有一項有填寫就記錄
+                    if(tool || type || prompt || usage) { 
                         aiRecords.push({ tool, type, prompt, usage });
                     }
                 });
@@ -692,7 +756,7 @@
 
             } catch (error) {
                 overlay.style.display = 'none';
-                window.showMessage('error', '處理失敗', '發生網路錯誤或權限問題：' + error.message);
+                window.showMessage('error', '處理失敗', '發生網路錯誤，請確保手機網路穩定。錯誤內容：' + error.message);
                 console.error(error);
             }
         });
